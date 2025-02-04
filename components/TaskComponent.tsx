@@ -7,19 +7,10 @@ type Task = {
   text: string;
   completed: boolean;
 };
-const TaskItem = ({
-  task,
-  onToggle,
-}: {
-  task: Task;
-  onToggle: (id: string) => void;
-}) => {
+const TaskItem = ({task, toggle}: {task: Task; toggle: () => void}) => {
   return (
     <View style={styles.container}>
-      <CheckBox
-        value={task.completed}
-        onValueChange={() => onToggle(task.id)}
-      />
+      <CheckBox value={task.completed} onTouchEnd={toggle} />
       <Text style={[styles.text, task.completed && styles.completed]}>
         {task.text}
       </Text>

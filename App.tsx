@@ -25,7 +25,7 @@ type SectionProps = PropsWithChildren<{
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
-  const [taskIsToggled, SetIsTaskToggled] = useState<string | null>(null);
+  const [taskIsToggled, SetIsTaskToggled] = useState<boolean>(false);
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -44,9 +44,9 @@ function App(): React.JSX.Element {
         task={{
           id: '1',
           text: 'Task 1',
-          completed: false,
+          completed: taskIsToggled,
         }}
-        onToggle={() => SetIsTaskToggled('1')}
+        toggle={() => SetIsTaskToggled(!taskIsToggled)}
       />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
