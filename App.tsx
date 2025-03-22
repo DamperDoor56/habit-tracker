@@ -1,106 +1,122 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React, {useState} from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-import TaskItem from './components/TaskComponent/TaskComponent';
-import TaskList from './components/TaskList/TaskList';
+import {View, Text, FlatList, TouchableOpacity, StyleSheet} from 'react-native';
+import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
+import {Plus} from 'lucide-react-native';
+import {HabitList} from './components/HabitList';
+import {AddHabitForm} from './components/AddHabitForm';
+import {Habit} from './types/habit';
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  const [toggledTasks, setToggledTasks] = useState<Set<string>>(new Set());
+export default function Home() {
+  const [showAddForm, setShowAddForm] = useState(false);
 
-  // Función para alternar el estado de una tarea específica
-  const handleToggle = (id: string) => {
-    setToggledTasks(prev => {
-      const newSet = new Set(prev);
-      newSet.has(id) ? newSet.delete(id) : newSet.add(id);
-      return newSet;
-    });
+  const [habits, setHabits] = useState<Habit[]>([
+    {id: 1, name: 'Beber agua', type: 'checklist', completed: false},
+    {
+      id: 2,
+      name: 'Meditar',
+      type: 'timer',
+      duration: 10 * 60,
+      completed: false,
+    },
+    {id: 3, name: 'Leer', type: 'timer', duration: 20 * 60, completed: false},
+    {id: 4, name: 'Ejercicio', type: 'checklist', completed: false},
+  ]);
+
+  const addHabit = (habit: Omit<Habit, 'id' | 'completed'>) => {
+    setHabits([...habits, {...habit, id: Date.now(), completed: false}]);
+    setShowAddForm(false);
   };
-  const tasks = [
-    {id: '1', text: 'Comprar leche', points: '10'},
-    {id: '2', text: 'Hacer ejercicio', points: '10'},
-    {id: '3', text: 'Leer un libro', points: '10'},
-    {id: '4', text: 'Revisar emails', points: '10'},
-    {id: '5', text: 'Estudiar React Native', points: '10'},
-    {id: '6', text: 'Llamar a mamá', points: '10'},
-  ];
+
+  const toggleComplete = (id: number) => {
+    setHabits(
+      habits.map(habit =>
+        habit.id === id ? {...habit, completed: !habit.completed} : habit,
+      ),
+    );
+  };
+
+  // Configuración de Tabs
+  const [index, setIndex] = useState(0);
+  const [routes] = useState([
+    {key: 'all', title: 'Todos'},
+    {key: 'checklist', title: 'Checklist'},
+    {key: 'timer', title: 'Temporizador'},
+  ]);
+
+  const renderScene = SceneMap({
+    all: () => <HabitList habits={habits} toggleComplete={toggleComplete} />,
+    checklist: () => (
+      <HabitList
+        habits={habits.filter(h => h.type === 'checklist')}
+        toggleComplete={toggleComplete}
+      />
+    ),
+    timer: () => (
+      <HabitList
+        habits={habits.filter(h => h.type === 'timer')}
+        toggleComplete={toggleComplete}
+      />
+    ),
+  });
+
   return (
-    <SafeAreaView style={styles.background}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <View style={styles.mainView}>
-        <View style={styles.mainTextView}>
-          <Text style={styles.mainText}>Welcome back</Text>
-          <Text style={styles.username}>Username</Text>
-        </View>
-        <View style={styles.infoView}>
-          <Text style={styles.infoText}>Today's points: 100</Text>
-          <Text style={styles.infoText}>Today's goal: 130</Text>
-        </View>
-      </View>
-      <ScrollView contentInsetAdjustmentBehavior="automatic">
-        <View style={styles.taskArea}>
-          <TaskList />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <Text style={styles.title}>Habit Tracker</Text>
+
+      <TabView
+        navigationState={{index, routes}}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        renderTabBar={props => (
+          <TabBar
+            {...props}
+            style={styles.tabBar}
+            indicatorStyle={styles.indicator}
+          />
+        )}
+      />
+
+      {showAddForm ? (
+        <AddHabitForm onAdd={addHabit} onCancel={() => setShowAddForm(false)} />
+      ) : (
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => setShowAddForm(true)}>
+          <Plus color="white" size={24} />
+        </TouchableOpacity>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
-    backgroundColor: '#D9D9D9',
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#fff',
   },
-  mainTextView: {
-    paddingTop: 40,
-    paddingLeft: 30,
-    paddingBottom: 20,
-    backgroundColor: '#366B85',
-    textAlign: 'left',
-  },
-  mainView: {
-    backgroundColor: '#366B85',
-    textAlign: 'left',
-  },
-  infoView: {
-    backgroundColor: '#5B7ED6',
-    marginHorizontal: 20,
-    marginVertical: 20,
-    paddingHorizontal: 30,
-    paddingVertical: 50,
-    borderRadius: 20,
-  },
-  mainText: {
-    color: '#FFFFFF',
-    fontSize: 20,
-  },
-  infoText: {
-    color: '#FFFFFF',
-    fontSize: 30,
-  },
-  username: {
+  title: {
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFFFFF',
-    fontSize: 20,
+    textAlign: 'center',
+    marginBottom: 10,
   },
-  taskArea: {
-    backgroundColor: '#D9D9D9',
-    height: '100%',
+  tabBar: {
+    backgroundColor: '#6200ee',
+  },
+  indicator: {
+    backgroundColor: 'white',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#6200ee',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
   },
 });
-
-export default App;
