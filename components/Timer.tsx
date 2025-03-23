@@ -47,7 +47,7 @@ export function Timer({
         <ProgressBar
           progress={progress}
           width={null}
-          color="#6200ee"
+          color="#669bbc"
           style={styles.progressBar}
         />
       ) : (
@@ -71,17 +71,15 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 6,
-    marginTop: 6,
   },
   progressBarWrapper: {
-    height: 6,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#669bbc',
     borderRadius: 3,
     overflow: 'hidden',
     marginTop: 6,
   },
   progressFill: {
-    height: 6,
-    backgroundColor: '#6200ee',
+    height: 10,
+    backgroundColor: '#669bbc',
   },
 });
