@@ -9,18 +9,7 @@ import {Habit} from './types/habit';
 export default function Home() {
   const [showAddForm, setShowAddForm] = useState(false);
 
-  const [habits, setHabits] = useState<Habit[]>([
-    {id: 1, name: 'Beber agua', type: 'checklist', completed: false},
-    {
-      id: 2,
-      name: 'Meditar',
-      type: 'timer',
-      duration: 10 * 60,
-      completed: false,
-    },
-    {id: 3, name: 'Leer', type: 'timer', duration: 20 * 60, completed: false},
-    {id: 4, name: 'Ejercicio', type: 'checklist', completed: false},
-  ]);
+  const [habits, setHabits] = useState<Habit[]>([]);
 
   const addHabit = (habit: Omit<Habit, 'id' | 'completed'>) => {
     setHabits([...habits, {...habit, id: Date.now(), completed: false}]);
@@ -93,19 +82,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#023047',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 30,
+    marginTop: 10,
+    color: '#ffff',
   },
   tabBar: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#415a77',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    marginBottom: 10,
   },
   indicator: {
-    backgroundColor: 'white',
+    backgroundColor: '#8ecae6',
   },
   fab: {
     position: 'absolute',
