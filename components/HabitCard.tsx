@@ -3,6 +3,7 @@ import {View, Text, Switch, TouchableOpacity, StyleSheet} from 'react-native';
 import {CheckCircle, Clock} from 'lucide-react-native';
 import {Timer} from './Timer';
 import {HabitCardProps} from '../types/habit-cart';
+import {CheckSquare, Square} from 'lucide-react-native';
 
 export function HabitCard({habit, onToggleComplete}: HabitCardProps) {
   const [timerActive, setTimerActive] = useState<boolean>(false);
@@ -33,7 +34,13 @@ export function HabitCard({habit, onToggleComplete}: HabitCardProps) {
       <View style={styles.content}>
         {habit.type === 'checklist' ? (
           <>
-            <Switch value={habit.completed} onValueChange={onToggleComplete} />
+            <TouchableOpacity onPress={onToggleComplete}>
+              {habit.completed ? (
+                <CheckSquare size={24} color="#023047" />
+              ) : (
+                <Square onPress={onToggleComplete} size={24} color="#aaa" />
+              )}
+            </TouchableOpacity>
             <View style={styles.textContainer}>
               <Text
                 style={[
@@ -118,7 +125,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   completedCard: {
-    backgroundColor: 'rgba(98, 0, 238, 0.1)',
+    backgroundColor: '#ccd5ae',
   },
   content: {
     flexDirection: 'row',
@@ -156,7 +163,7 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    backgroundColor: '#6200ee',
+    backgroundColor: '#669bbc',
     paddingVertical: 8,
     borderRadius: 6,
     alignItems: 'center',
@@ -168,10 +175,10 @@ const styles = StyleSheet.create({
   outlineButton: {
     backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#6200ee',
+    borderColor: '#669bbc',
   },
   outlineButtonText: {
-    color: '#6200ee',
+    color: '#669bbc',
     fontWeight: 'bold',
   },
 });
