@@ -59,7 +59,13 @@ export function AddHabitForm({onAdd, onCancel}: AddHabitFormProps) {
                   type === 'checklist' && styles.radioSelected,
                 ]}
                 onPress={() => setType('checklist')}>
-                <Text style={styles.radioText}>Checklist</Text>
+                <Text
+                  style={
+                    (styles.radioText,
+                    type === 'checklist' && styles.radioTextSelected)
+                  }>
+                  Checklist
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
@@ -67,7 +73,13 @@ export function AddHabitForm({onAdd, onCancel}: AddHabitFormProps) {
                   type === 'timer' && styles.radioSelected,
                 ]}
                 onPress={() => setType('timer')}>
-                <Text style={styles.radioText}>Temporizador</Text>
+                <Text
+                  style={
+                    (styles.radioText,
+                    type === 'timer' && styles.radioTextSelected)
+                  }>
+                  Temporizador
+                </Text>
               </TouchableOpacity>
             </View>
 
@@ -161,17 +173,23 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   radioSelected: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#669bbc',
   },
   radioText: {
     color: '#000',
+  },
+  radioTextSelected: {
+    color: '#ffffff',
     fontWeight: 'bold',
   },
   picker: {
+    color: 'black',
     marginTop: 5,
+    fontWeight: 'bold',
+    backgroundColor: '#f0f0f0',
   },
   saveButton: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#669bbc',
     paddingVertical: 12,
     borderRadius: 6,
     alignItems: 'center',
