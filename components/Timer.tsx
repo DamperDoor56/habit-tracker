@@ -1,6 +1,5 @@
 import React, {useEffect} from 'react';
 import {View, Text, StyleSheet, Platform} from 'react-native';
-import {Bar as ProgressBar} from 'react-native-progress';
 import {TimerProps} from '../types/timer';
 
 export function Timer({
