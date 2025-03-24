@@ -1,11 +1,25 @@
 import React, {useState} from 'react';
-import {View, Text, Switch, TouchableOpacity, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  Switch,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from 'react-native';
 import {CheckCircle, Clock} from 'lucide-react-native';
 import {Timer} from './Timer';
 import {HabitCardProps} from '../types/habit-cart';
 import {CheckSquare, Square} from 'lucide-react-native';
+import {HabitOptions} from './HabitOptions';
+import {Habit} from '../types/habit';
 
-export function HabitCard({habit, onToggleComplete}: HabitCardProps) {
+export function HabitCard({
+  habit,
+  onToggleComplete,
+  onEditHabit,
+  onDeleteHabit,
+}: HabitCardProps) {
   const [timerActive, setTimerActive] = useState<boolean>(false);
   const [timeRemaining, setTimeRemaining] = useState<number>(
     habit.duration || 0,
@@ -41,14 +55,20 @@ export function HabitCard({habit, onToggleComplete}: HabitCardProps) {
                 <Square onPress={onToggleComplete} size={24} color="#aaa" />
               )}
             </TouchableOpacity>
-            <View style={styles.textContainer}>
-              <Text
-                style={[
-                  styles.habitName,
-                  habit.completed && styles.completedText,
-                ]}>
-                {habit.name}
-              </Text>
+            <View>
+              <View style={styles.textContainer}>
+                <Text
+                  style={[
+                    styles.habitName,
+                    habit.completed && styles.completedText,
+                  ]}>
+                  {habit.name}
+                </Text>
+                <HabitOptions
+                  onEdit={() => onEditHabit()}
+                  onDelete={() => onDeleteHabit()}
+                />
+              </View>
               <View style={styles.infoRow}>
                 <CheckCircle size={14} color="#888" />
                 <Text style={styles.infoText}>Checklist</Text>
@@ -57,14 +77,16 @@ export function HabitCard({habit, onToggleComplete}: HabitCardProps) {
           </>
         ) : (
           <>
-            <View style={styles.textContainer}>
-              <Text
-                style={[
-                  styles.habitName,
-                  habit.completed && styles.completedText,
-                ]}>
-                {habit.name}
-              </Text>
+            <View style={styles.timer}>
+              <View style={styles.textContainer}>
+                <Text
+                  style={[
+                    styles.habitName,
+                    habit.completed && styles.completedText,
+                  ]}>
+                  {habit.name}
+                </Text>
+              </View>
               <View style={styles.infoRow}>
                 <Clock size={14} color="#888" />
                 <Text style={styles.infoText}>
@@ -124,6 +146,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  timer: {
+    width: '100%',
+  },
   completedCard: {
     backgroundColor: '#ccd5ae',
   },
@@ -133,7 +158,11 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   textContainer: {
-    flex: 1,
+    display: 'flex',
+    width: '95%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   habitName: {
     fontSize: 16,
