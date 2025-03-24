@@ -11,13 +11,18 @@
   },
   "dependencies": {
     "@react-native-community/checkbox": "^0.5.17",
+    "@react-native-picker/picker": "^2.11.0",
+    "lucide-react-native": "^0.483.0",
     "react": "18.3.1",
-    "react-native": "0.77.0"
+    "react-native": "0.77.0",
+    "react-native-pager-view": "^6.7.0",
+    "react-native-svg": "^15.11.2",
+    "react-native-tab-view": "^4.0.6"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.25.3",
-    "@babel/runtime": "^7.25.0",
+    "@babel/runtime": "^7.26.10",
     "@react-native-community/cli": "15.0.1",
     "@react-native-community/cli-platform-android": "15.0.1",
     "@react-native-community/cli-platform-ios": "15.0.1",
