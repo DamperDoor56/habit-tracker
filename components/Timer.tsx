@@ -42,19 +42,6 @@ export function Timer({
   return (
     <View style={styles.container}>
       <Text style={styles.timerText}>{formatTime(timeRemaining)}</Text>
-
-      {Platform.OS === 'android' ? (
-        <ProgressBar
-          progress={progress}
-          width={null}
-          color="#669bbc"
-          style={styles.progressBar}
-        />
-      ) : (
-        <View style={styles.progressBarWrapper}>
-          <View style={[styles.progressFill, {width: `${progress * 100}%`}]} />
-        </View>
-      )}
     </View>
   );
 }
