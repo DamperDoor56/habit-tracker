@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,22 +11,44 @@ import {Picker} from '@react-native-picker/picker';
 import {X} from 'lucide-react-native';
 import {AddHabitFormProps} from '../types/form';
 
-export function AddHabitForm({onAdd, onCancel}: AddHabitFormProps) {
+export function AddHabitForm({
+  onAdd,
+  onCancel,
+  initialValues,
+  isEdit,
+  existingHabit,
+  onUpdate,
+}: AddHabitFormProps) {
   const [name, setName] = useState<string>('');
   const [type, setType] = useState<'checklist' | 'timer'>('checklist');
-  const [duration, setDuration] = useState<string>('10');
-
+  const [duration, setDuration] = useState<string>(
+    initialValues?.duration ? String(initialValues.duration / 60) : '10',
+  );
   const handleSubmit = () => {
     if (!name.trim()) return;
 
-    const habit = {
+    const baseHabit = {
       name,
       type,
       ...(type === 'timer' && {duration: Number.parseInt(duration) * 60}),
     };
 
-    onAdd(habit);
+    if (existingHabit && onUpdate) {
+      onUpdate({...existingHabit, ...baseHabit});
+    } else if (onAdd) {
+      onAdd(baseHabit);
+    }
   };
+
+  useEffect(() => {
+    if (isEdit && existingHabit) {
+      setName(existingHabit.name);
+      setType(existingHabit.type);
+      if (existingHabit.type === 'timer' && existingHabit.duration) {
+        setDuration(String(existingHabit.duration / 60));
+      }
+    }
+  }, [isEdit, existingHabit]);
 
   return (
     <Modal transparent animationType="slide">
@@ -34,7 +56,10 @@ export function AddHabitForm({onAdd, onCancel}: AddHabitFormProps) {
         <View style={styles.card}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>Nuevo Hábito</Text>
+            <Text style={styles.title}>
+              {isEdit ? 'Editar Hábito' : 'Nuevo Hábito'}
+            </Text>
+
             <TouchableOpacity onPress={onCancel} style={styles.closeButton}>
               <X size={20} color="black" />
             </TouchableOpacity>
@@ -105,7 +130,9 @@ export function AddHabitForm({onAdd, onCancel}: AddHabitFormProps) {
 
           {/* Botón Guardar */}
           <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
-            <Text style={styles.saveButtonText}>Guardar</Text>
+            <Text style={styles.saveButtonText}>
+              {isEdit ? 'Actualizar' : 'Guardar'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
