@@ -4,7 +4,7 @@ import {HabitCard} from './HabitCard';
 import {Habit} from '.././types/habit';
 import {HabitListProps} from '.././types/habit-list';
 
-export function HabitList({habits, toggleComplete}: HabitListProps) {
+export function HabitList({habits, handleEditHabit, toggleComplete}: HabitListProps) {
   const [habitsToExist, setHabitsToExist] = useState<Habit[]>(habits);
   useEffect(() => {
     setHabitsToExist(habits);
@@ -22,35 +22,6 @@ export function HabitList({habits, toggleComplete}: HabitListProps) {
         },
       },
     ]);
-  };
-
-  const handleEditHabit = (habitToEdit: Habit) => {
-    Alert.prompt(
-      'Editar hábito',
-      'Cambiá el nombre del hábito:',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Guardar',
-          onPress: newName => {
-            if (newName && newName.trim() !== '') {
-              setHabitsToExist(prev =>
-                prev.map(habit =>
-                  habit.id === habitToEdit.id
-                    ? {...habit, name: newName}
-                    : habit,
-                ),
-              );
-            }
-          },
-        },
-      ],
-      'plain-text',
-      habitToEdit.name,
-    );
   };
 
   if (habitsToExist.length === 0) {
