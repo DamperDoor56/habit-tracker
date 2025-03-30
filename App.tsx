@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, FlatList, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Text, Alert, TouchableOpacity, StyleSheet} from 'react-native';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import {Plus} from 'lucide-react-native';
 import {HabitList} from './components/HabitList';
@@ -37,6 +37,16 @@ export default function Home() {
     setIsEdit(true);
     setHabitBeingEdited(habit);
   };
+  const handleDeleteHabit = (id: number) => {
+    Alert.alert('¿Eliminar hábito?', 'Esta acción no se puede deshacer.', [
+      {text: 'Cancelar', style: 'cancel'},
+      {
+        text: 'Eliminar',
+        style: 'destructive',
+        onPress: () => setHabits(prev => prev.filter(habit => habit.id !== id)),
+      },
+    ]);
+  };
 
   const onUpdate = (updatedHabit: Habit) => {
     setHabits(prev =>
@@ -47,6 +57,7 @@ export default function Home() {
   const renderScene = SceneMap({
     all: () => (
       <HabitList
+        handleDeleteHabit={handleDeleteHabit}
         habits={habits}
         handleEditHabit={updateHabit}
         toggleComplete={toggleComplete}
@@ -54,6 +65,7 @@ export default function Home() {
     ),
     checklist: () => (
       <HabitList
+        handleDeleteHabit={handleDeleteHabit}
         handleEditHabit={updateHabit}
         habits={habits.filter(h => h.type === 'checklist')}
         toggleComplete={toggleComplete}
@@ -61,6 +73,7 @@ export default function Home() {
     ),
     timer: () => (
       <HabitList
+        handleDeleteHabit={handleDeleteHabit}
         handleEditHabit={updateHabit}
         habits={habits.filter(h => h.type === 'timer')}
         toggleComplete={toggleComplete}

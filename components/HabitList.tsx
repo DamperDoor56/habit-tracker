@@ -4,25 +4,16 @@ import {HabitCard} from './HabitCard';
 import {Habit} from '.././types/habit';
 import {HabitListProps} from '.././types/habit-list';
 
-export function HabitList({habits, handleEditHabit, toggleComplete}: HabitListProps) {
+export function HabitList({
+  habits,
+  handleEditHabit,
+  handleDeleteHabit,
+  toggleComplete,
+}: HabitListProps) {
   const [habitsToExist, setHabitsToExist] = useState<Habit[]>(habits);
   useEffect(() => {
     setHabitsToExist(habits);
   }, [habits]);
-  const handleDeleteHabit = (id: number) => {
-    console.log('Intentando eliminar hábito con id:', id); // 💥
-    Alert.alert('¿Eliminar hábito?', 'Esta acción no se puede deshacer.', [
-      {text: 'Cancelar', style: 'cancel'},
-      {
-        text: 'Eliminar',
-        style: 'destructive',
-        onPress: () => {
-          console.log('Eliminado');
-          setHabitsToExist(prev => prev.filter(habit => habit.id !== id));
-        },
-      },
-    ]);
-  };
 
   if (habitsToExist.length === 0) {
     return (
