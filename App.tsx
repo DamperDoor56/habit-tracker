@@ -1,16 +1,34 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text, Alert, TouchableOpacity, StyleSheet} from 'react-native';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import {Plus} from 'lucide-react-native';
 import {HabitList} from './components/HabitList';
 import {AddHabitForm} from './components/AddHabitForm';
 import {Habit} from './types/habit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Home() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [habitBeingEdited, setHabitBeingEdited] = useState<Habit | null>(null);
   const [isEdit, setIsEdit] = useState<boolean>(false);
+
+  useEffect(() => {
+    console.log('Loading Habits!');
+    const loadHabits = async () => {
+      const savedHabits = await AsyncStorage.getItem('habits');
+      if (savedHabits) {
+        setHabits(JSON.parse(savedHabits));
+      }
+    };
+
+    loadHabits();
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.setItem('habits', JSON.stringify(habits));
+    console.log('Storing habits!');
+  }, [habits]);
 
   const addHabit = (habit: Omit<Habit, 'id' | 'completed'>) => {
     setHabits([...habits, {...habit, id: Date.now(), completed: false}]);
