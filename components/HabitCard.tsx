@@ -12,7 +12,6 @@ import {Timer} from './Timer';
 import {HabitCardProps} from '../types/habit-cart';
 import {CheckSquare, Square} from 'lucide-react-native';
 import {HabitOptions} from './HabitOptions';
-import {Habit} from '../types/habit';
 
 export function HabitCard({
   habit,
@@ -87,11 +86,18 @@ export function HabitCard({
                   {habit.name}
                 </Text>
               </View>
-              <View style={styles.infoRow}>
-                <Clock size={14} color="#888" />
-                <Text style={styles.infoText}>
-                  Temporizador: {Math.floor((habit.duration ?? 0) / 60)} minutos
-                </Text>
+              <View style={styles.textContainer}>
+                <View style={styles.infoRow}>
+                  <Clock size={14} color="#888" />
+                  <Text style={styles.infoText}>
+                    Temporizador: {Math.floor((habit.duration ?? 0) / 60)}{' '}
+                    minutos
+                  </Text>
+                </View>
+                <HabitOptions
+                  onEdit={() => onEditHabit()}
+                  onDelete={() => onDeleteHabit()}
+                />
               </View>
 
               {!habit.completed && (

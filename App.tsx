@@ -1,15 +1,34 @@
-import React, {useState} from 'react';
-import {View, Text, FlatList, TouchableOpacity, StyleSheet} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, Alert, TouchableOpacity, StyleSheet} from 'react-native';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import {Plus} from 'lucide-react-native';
 import {HabitList} from './components/HabitList';
 import {AddHabitForm} from './components/AddHabitForm';
 import {Habit} from './types/habit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Home() {
   const [showAddForm, setShowAddForm] = useState(false);
-
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [habitBeingEdited, setHabitBeingEdited] = useState<Habit | null>(null);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+
+  useEffect(() => {
+    console.log('Loading Habits!');
+    const loadHabits = async () => {
+      const savedHabits = await AsyncStorage.getItem('habits');
+      if (savedHabits) {
+        setHabits(JSON.parse(savedHabits));
+      }
+    };
+
+    loadHabits();
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.setItem('habits', JSON.stringify(habits));
+    console.log('Storing habits!');
+  }, [habits]);
 
   const addHabit = (habit: Omit<Habit, 'id' | 'completed'>) => {
     setHabits([...habits, {...habit, id: Date.now(), completed: false}]);
@@ -32,16 +51,48 @@ export default function Home() {
     {key: 'timer', title: 'Temporizador'},
   ]);
 
+  const updateHabit = (habit: Habit) => {
+    setIsEdit(true);
+    setHabitBeingEdited(habit);
+  };
+  const handleDeleteHabit = (id: number) => {
+    Alert.alert('¿Eliminar hábito?', 'Esta acción no se puede deshacer.', [
+      {text: 'Cancelar', style: 'cancel'},
+      {
+        text: 'Eliminar',
+        style: 'destructive',
+        onPress: () => setHabits(prev => prev.filter(habit => habit.id !== id)),
+      },
+    ]);
+  };
+
+  const onUpdate = (updatedHabit: Habit) => {
+    setHabits(prev =>
+      prev.map(h => (h.id === updatedHabit.id ? updatedHabit : h)),
+    );
+    setHabitBeingEdited(null); // Cierra el modal
+  };
   const renderScene = SceneMap({
-    all: () => <HabitList habits={habits} toggleComplete={toggleComplete} />,
+    all: () => (
+      <HabitList
+        handleDeleteHabit={handleDeleteHabit}
+        habits={habits}
+        handleEditHabit={updateHabit}
+        toggleComplete={toggleComplete}
+      />
+    ),
     checklist: () => (
       <HabitList
+        handleDeleteHabit={handleDeleteHabit}
+        handleEditHabit={updateHabit}
         habits={habits.filter(h => h.type === 'checklist')}
         toggleComplete={toggleComplete}
       />
     ),
     timer: () => (
       <HabitList
+        handleDeleteHabit={handleDeleteHabit}
+        handleEditHabit={updateHabit}
         habits={habits.filter(h => h.type === 'timer')}
         toggleComplete={toggleComplete}
       />
@@ -64,7 +115,14 @@ export default function Home() {
           />
         )}
       />
-
+      {habitBeingEdited && (
+        <AddHabitForm
+          isEdit={isEdit}
+          existingHabit={habitBeingEdited}
+          onUpdate={onUpdate}
+          onCancel={() => setHabitBeingEdited(null)}
+        />
+      )}
       {showAddForm ? (
         <AddHabitForm onAdd={addHabit} onCancel={() => setShowAddForm(false)} />
       ) : (
