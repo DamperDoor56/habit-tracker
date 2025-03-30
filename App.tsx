@@ -8,8 +8,9 @@ import {Habit} from './types/habit';
 
 export default function Home() {
   const [showAddForm, setShowAddForm] = useState(false);
-
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [habitBeingEdited, setHabitBeingEdited] = useState<Habit | null>(null);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const addHabit = (habit: Omit<Habit, 'id' | 'completed'>) => {
     setHabits([...habits, {...habit, id: Date.now(), completed: false}]);
@@ -32,16 +33,35 @@ export default function Home() {
     {key: 'timer', title: 'Temporizador'},
   ]);
 
+  const updateHabit = (habit: Habit) => {
+    setIsEdit(true);
+    setHabitBeingEdited(habit);
+  };
+
+  const onUpdate = (updatedHabit: Habit) => {
+    setHabits(prev =>
+      prev.map(h => (h.id === updatedHabit.id ? updatedHabit : h)),
+    );
+    setHabitBeingEdited(null); // Cierra el modal
+  };
   const renderScene = SceneMap({
-    all: () => <HabitList habits={habits} toggleComplete={toggleComplete} />,
+    all: () => (
+      <HabitList
+        habits={habits}
+        handleEditHabit={updateHabit}
+        toggleComplete={toggleComplete}
+      />
+    ),
     checklist: () => (
       <HabitList
+        handleEditHabit={updateHabit}
         habits={habits.filter(h => h.type === 'checklist')}
         toggleComplete={toggleComplete}
       />
     ),
     timer: () => (
       <HabitList
+        handleEditHabit={updateHabit}
         habits={habits.filter(h => h.type === 'timer')}
         toggleComplete={toggleComplete}
       />
@@ -64,7 +84,14 @@ export default function Home() {
           />
         )}
       />
-
+      {habitBeingEdited && (
+        <AddHabitForm
+          isEdit={isEdit}
+          existingHabit={habitBeingEdited}
+          onUpdate={onUpdate}
+          onCancel={() => setHabitBeingEdited(null)}
+        />
+      )}
       {showAddForm ? (
         <AddHabitForm onAdd={addHabit} onCancel={() => setShowAddForm(false)} />
       ) : (
