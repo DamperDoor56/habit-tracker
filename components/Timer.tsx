@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react';
-import {View, Text, StyleSheet, Platform} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
+import BackgroundTimer from 'react-native-background-timer';
 import {TimerProps} from '../types/timer';
 
 export function Timer({
@@ -10,13 +11,13 @@ export function Timer({
   setTimeRemaining,
 }: TimerProps) {
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
+    let intervalId: number;
 
     if (active && timeRemaining > 0) {
-      interval = setInterval(() => {
+      intervalId = BackgroundTimer.setInterval(() => {
         setTimeRemaining(prev => {
           if (prev <= 1) {
-            clearInterval(interval);
+            BackgroundTimer.clearInterval(intervalId);
             onComplete();
             return 0;
           }
@@ -25,8 +26,12 @@ export function Timer({
       }, 1000);
     }
 
-    return () => clearInterval(interval);
-  }, [active, timeRemaining, onComplete, setTimeRemaining]);
+    return () => {
+      if (intervalId) {
+        BackgroundTimer.clearInterval(intervalId);
+      }
+    };
+  }, [active, timeRemaining]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -35,8 +40,6 @@ export function Timer({
       .toString()
       .padStart(2, '0')}`;
   };
-
-  const progress = (duration - timeRemaining) / duration;
 
   return (
     <View style={styles.container}>
