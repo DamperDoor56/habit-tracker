@@ -18,7 +18,6 @@ export function HabitCard({
   onToggleComplete,
   onEditHabit,
   onDeleteHabit,
-  points,
 }: HabitCardProps) {
   const [timerActive, setTimerActive] = useState<boolean>(false);
   const [timeRemaining, setTimeRemaining] = useState<number>(
@@ -75,7 +74,7 @@ export function HabitCard({
               </View>
               <View style={styles.infoRow}>
                 <Award size={14} color="#888" />
-                <Text style={styles.infoText}>Puntos: {points}</Text>
+                <Text style={styles.infoText}>Puntos: {habit.points}</Text>
               </View>
             </View>
           </View>
@@ -108,7 +107,7 @@ export function HabitCard({
               </View>
               <View style={styles.infoRow}>
                 <Award size={14} color="#888" />
-                <Text style={styles.infoText}>Puntos: {points}</Text>
+                <Text style={styles.infoText}>Puntos: {habit.points}</Text>
               </View>
               {!habit.completed && (
                 <View style={styles.timerContainer}>
