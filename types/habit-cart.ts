@@ -6,6 +6,6 @@ export interface HabitCardProps {
     onToggleComplete: () => void;
     onEditHabit: () => void;
     onDeleteHabit: () => void;
-    points: number
+    points: string
   };
   
