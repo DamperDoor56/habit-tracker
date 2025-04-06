@@ -21,6 +21,7 @@ export function AddHabitForm({
 }: AddHabitFormProps) {
   const [name, setName] = useState<string>('');
   const [type, setType] = useState<'checklist' | 'timer'>('checklist');
+  const [points, setPoints] = useState<string>('0');
   const [duration, setDuration] = useState<string>(
     initialValues?.duration ? String(initialValues.duration / 60) : '10',
   );
@@ -30,6 +31,7 @@ export function AddHabitForm({
     const baseHabit = {
       name,
       type,
+      points,
       ...(type === 'timer' && {duration: Number.parseInt(duration) * 60}),
     };
 
@@ -44,6 +46,7 @@ export function AddHabitForm({
     if (isEdit && existingHabit) {
       setName(existingHabit.name);
       setType(existingHabit.type);
+      setPoints(existingHabit.points);
       if (existingHabit.type === 'timer' && existingHabit.duration) {
         setDuration(String(existingHabit.duration / 60));
       }
@@ -73,6 +76,14 @@ export function AddHabitForm({
               value={name}
               onChangeText={setName}
               placeholder="Nombre del hábito"
+            />
+
+            <Text style={styles.label}>Puntos</Text>
+            <TextInput
+              style={styles.input}
+              value={points}
+              onChangeText={setPoints}
+              placeholder="Puntos del habito"
             />
 
             {/* Tipo de Hábito */}

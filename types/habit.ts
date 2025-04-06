@@ -4,5 +4,6 @@ export type Habit = {
     type: 'checklist' | 'timer';
     completed: boolean;
     duration?: number; // Solo si el tipo es 'timer'
+    points: string
   };
   

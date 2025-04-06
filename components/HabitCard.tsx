@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import {CheckCircle, Clock} from 'lucide-react-native';
+import {CheckCircle, Clock, Award} from 'lucide-react-native';
 import {Timer} from './Timer';
 import {HabitCardProps} from '../types/habit-cart';
 import {CheckSquare, Square} from 'lucide-react-native';
@@ -46,7 +46,7 @@ export function HabitCard({
     <View style={[styles.card, habit.completed && styles.completedCard]}>
       <View style={styles.content}>
         {habit.type === 'checklist' ? (
-          <>
+          <View style={styles.upper}>
             <TouchableOpacity onPress={onToggleComplete}>
               {habit.completed ? (
                 <CheckSquare size={24} color="#023047" />
@@ -72,8 +72,12 @@ export function HabitCard({
                 <CheckCircle size={14} color="#888" />
                 <Text style={styles.infoText}>Checklist</Text>
               </View>
+              <View style={styles.infoRow}>
+                <Award size={14} color="#888" />
+                <Text style={styles.infoText}>Puntos: {habit.points}</Text>
+              </View>
             </View>
-          </>
+          </View>
         ) : (
           <>
             <View style={styles.timer}>
@@ -94,12 +98,17 @@ export function HabitCard({
                     minutos
                   </Text>
                 </View>
-                <HabitOptions
-                  onEdit={() => onEditHabit()}
-                  onDelete={() => onDeleteHabit()}
-                />
+                <View style={styles.infoRow}>
+                  <HabitOptions
+                    onEdit={() => onEditHabit()}
+                    onDelete={() => onDeleteHabit()}
+                  />
+                </View>
               </View>
-
+              <View style={styles.infoRow}>
+                <Award size={14} color="#888" />
+                <Text style={styles.infoText}>Puntos: {habit.points}</Text>
+              </View>
               {!habit.completed && (
                 <View style={styles.timerContainer}>
                   <Timer
@@ -151,6 +160,13 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 2},
     shadowRadius: 4,
     elevation: 3,
+  },
+  upper: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between',
+    gap: 10,
+    flexDirection: 'row',
   },
   timer: {
     width: '100%',
