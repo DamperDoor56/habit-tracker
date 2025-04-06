@@ -6,12 +6,16 @@ import {HabitList} from './components/HabitList';
 import {AddHabitForm} from './components/AddHabitForm';
 import {Habit} from './types/habit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {GoalCard} from './components/GoalCard';
+import {GoalForm} from './components/GoalForm';
 
 export default function Home() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [habitBeingEdited, setHabitBeingEdited] = useState<Habit | null>(null);
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [openGoalForm, setIsOpenGoalForm] = useState<boolean>(false);
+  const [goalPoints, setIsGoalPoints] = useState<string>('0');
 
   useEffect(() => {
     console.log('Loading Habits!');
@@ -72,6 +76,14 @@ export default function Home() {
     );
     setHabitBeingEdited(null); // Cierra el modal
   };
+  const totalPoints = habits.reduce((acc, habit) => {
+    if (habit.completed && habit.points) {
+      const parsedPoints = parseInt(habit.points, 10);
+      return acc + (isNaN(parsedPoints) ? 0 : parsedPoints);
+    }
+    return acc;
+  }, 0);
+
   const renderScene = SceneMap({
     all: () => (
       <HabitList
@@ -102,6 +114,10 @@ export default function Home() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Habit Tracker</Text>
+      <GoalCard
+        totalPoints={totalPoints}
+        goalPoint={goalPoints}
+        onOpenForm={() => setIsOpenGoalForm(true)}></GoalCard>
 
       <TabView
         navigationState={{index, routes}}
@@ -121,6 +137,13 @@ export default function Home() {
           existingHabit={habitBeingEdited}
           onUpdate={onUpdate}
           onCancel={() => setHabitBeingEdited(null)}
+        />
+      )}
+      {openGoalForm && (
+        <GoalForm
+          goalPoints={goalPoints}
+          onClose={() => setIsOpenGoalForm(false)}
+          setGoalPoints={setIsGoalPoints}
         />
       )}
       {showAddForm ? (
