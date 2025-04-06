@@ -120,7 +120,7 @@ export default function Home() {
     setHabits(prev =>
       prev.map(h => (h.id === updatedHabit.id ? updatedHabit : h)),
     );
-    setHabitBeingEdited(null); // Cierra el modal
+    setHabitBeingEdited(null); // Close modal
   };
   const totalPoints = habits.reduce((acc, habit) => {
     if (habit.completed && habit.points) {
@@ -133,7 +133,7 @@ export default function Home() {
     const checkGoal = async () => {
       const popupShown = await AsyncStorage.getItem('goalPopupShown');
       const goal = parseInt(goalPoints, 10);
-      console.log('🎯 Revisando objetivo:', goal, 'Total:', totalPoints);
+      console.log('🎯 Checking goal:', goal, 'Total:', totalPoints);
 
       if (!isNaN(goal) && totalPoints >= goal && popupShown !== 'true') {
         setHasReachedGoal(true);
