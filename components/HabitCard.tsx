@@ -1,12 +1,5 @@
 import React, {useState} from 'react';
-import {
-  View,
-  Text,
-  Switch,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {CheckCircle, Clock, Award} from 'lucide-react-native';
 import {Timer} from './Timer';
 import {HabitCardProps} from '../types/habit-cart';
@@ -47,11 +40,14 @@ export function HabitCard({
       <View style={styles.content}>
         {habit.type === 'checklist' ? (
           <View style={styles.upper}>
+            <View>
+              <Text style={styles.animations}>+ {habit.points}</Text>
+            </View>
             <TouchableOpacity onPress={onToggleComplete}>
               {habit.completed ? (
                 <CheckSquare size={24} color="#023047" />
               ) : (
-                <Square onPress={onToggleComplete} size={24} color="#aaa" />
+                <Square size={24} color="#aaa" />
               )}
             </TouchableOpacity>
             <View>
@@ -178,6 +174,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+  },
+  animations: {
+    position: 'absolute',
+    zIndex: 1,
+    fontSize: 20,
+    left: 250,
+    color: 'green',
   },
   textContainer: {
     display: 'flex',
