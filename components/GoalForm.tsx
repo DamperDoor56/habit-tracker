@@ -11,6 +11,28 @@ import {GoalFormProps} from '../types/goal-form';
 import {X} from 'lucide-react-native';
 
 export function GoalForm({goalPoints, setGoalPoints, onClose}: GoalFormProps) {
+  const [error, setError] = useState<string>('');
+
+  const handleGoalChange = (text: string) => {
+    // Allow numbers only
+    if (/^\d*$/.test(text)) {
+      setGoalPoints(text);
+      setError('');
+    } else {
+      setError('Solo se permiten números');
+    }
+  };
+
+  const handleSubmit = () => {
+    if (error != '') {
+      return;
+    }
+    if (goalPoints === '') {
+      setError('Solo se permiten números');
+      return;
+    }
+    onClose();
+  };
   return (
     <Modal transparent animationType="slide">
       <View style={styles.overlay}>
@@ -31,12 +53,13 @@ export function GoalForm({goalPoints, setGoalPoints, onClose}: GoalFormProps) {
               <TextInput
                 style={styles.input}
                 value={goalPoints}
-                onChangeText={setGoalPoints}
+                onChangeText={handleGoalChange}
                 placeholder="Objetivo"
               />
+              {error !== '' && <Text style={styles.error}>{error}</Text>}
             </View>
           </View>
-          <TouchableOpacity style={styles.saveButton} onPress={onClose}>
+          <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
             <Text style={styles.saveButtonText}>Guardar</Text>
           </TouchableOpacity>
         </View>
@@ -46,6 +69,11 @@ export function GoalForm({goalPoints, setGoalPoints, onClose}: GoalFormProps) {
 }
 
 const styles = StyleSheet.create({
+  error: {
+    color: 'red',
+    marginTop: 4,
+    fontSize: 12,
+  },
   overlay: {
     flex: 1,
     justifyContent: 'center',

@@ -9,6 +9,7 @@ export function HabitList({
   handleEditHabit,
   handleDeleteHabit,
   toggleComplete,
+  animatedHabitId,
 }: HabitListProps) {
   const [habitsToExist, setHabitsToExist] = useState<Habit[]>(habits);
   useEffect(() => {
@@ -30,6 +31,7 @@ export function HabitList({
       renderItem={({item}) => (
         <HabitCard
           habit={item}
+          animatedHabitId={animatedHabitId}
           onToggleComplete={() => toggleComplete(item.id)}
           onEditHabit={() => handleEditHabit(item)}
           onDeleteHabit={() => handleDeleteHabit(item.id)}

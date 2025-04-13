@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {View, Text, Alert, TouchableOpacity, StyleSheet} from 'react-native';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import {Plus} from 'lucide-react-native';
@@ -19,6 +19,7 @@ export default function Home() {
   const [goalPoints, setIsGoalPoints] = useState<string>('0');
   const [hasReachedGoal, setHasReachedGoal] = useState<boolean>(false);
   const [goalLoaded, setGoalLoaded] = useState<boolean>(false);
+  const [animatedHabitId, setAnimatedHabitId] = useState<number | null>(null);
 
   // This useEffect retrieves data from async storage when the app is open
   useEffect(() => {
@@ -86,10 +87,17 @@ export default function Home() {
 
   // Complete habit
   const toggleComplete = (id: number) => {
-    setHabits(
-      habits.map(habit =>
-        habit.id === id ? {...habit, completed: !habit.completed} : habit,
-      ),
+    setHabits(prevHabits =>
+      prevHabits.map(habit => {
+        if (habit.id === id) {
+          // Animate only if we mark it as completed now
+          if (!habit.completed) {
+            setAnimatedHabitId(id);
+          }
+          return {...habit, completed: !habit.completed};
+        }
+        return habit;
+      }),
     );
   };
 
@@ -105,6 +113,7 @@ export default function Home() {
     setIsEdit(true);
     setHabitBeingEdited(habit);
   };
+
   const handleDeleteHabit = (id: number) => {
     Alert.alert('¿Eliminar hábito?', 'Esta acción no se puede deshacer.', [
       {text: 'Cancelar', style: 'cancel'},
@@ -129,16 +138,31 @@ export default function Home() {
     }
     return acc;
   }, 0);
+  // Check previus total points
+  const prevTotalPointsRef = useRef(totalPoints);
+
   useEffect(() => {
     const checkGoal = async () => {
-      const popupShown = await AsyncStorage.getItem('goalPopupShown');
       const goal = parseInt(goalPoints, 10);
-      console.log('🎯 Checking goal:', goal, 'Total:', totalPoints);
+      const prevTotalPoints = prevTotalPointsRef.current;
 
-      if (!isNaN(goal) && totalPoints >= goal && popupShown !== 'true') {
-        setHasReachedGoal(true);
-        await AsyncStorage.setItem('goalPopupShown', 'true');
+      // Show Pop up if the goal is completed, but if it hasn't happened before
+      if (!isNaN(goal) && prevTotalPoints < goal && totalPoints >= goal) {
+        const popupAlreadyShown = await AsyncStorage.getItem('goalPopupShown');
+
+        if (popupAlreadyShown !== 'true') {
+          setHasReachedGoal(true);
+          await AsyncStorage.setItem('goalPopupShown', 'true');
+        }
       }
+
+      // If it's below the goal, reset AsyncStorage
+      if (!isNaN(goal) && totalPoints < goal && prevTotalPoints >= goal) {
+        await AsyncStorage.removeItem('goalPopupShown');
+        setHasReachedGoal(false);
+      }
+
+      prevTotalPointsRef.current = totalPoints;
     };
 
     checkGoal();
@@ -147,6 +171,7 @@ export default function Home() {
   const renderScene = SceneMap({
     all: () => (
       <HabitList
+        animatedHabitId={animatedHabitId}
         handleDeleteHabit={handleDeleteHabit}
         habits={habits}
         handleEditHabit={updateHabit}
@@ -155,6 +180,7 @@ export default function Home() {
     ),
     checklist: () => (
       <HabitList
+        animatedHabitId={animatedHabitId}
         handleDeleteHabit={handleDeleteHabit}
         handleEditHabit={updateHabit}
         habits={habits.filter(h => h.type === 'checklist')}
@@ -163,6 +189,7 @@ export default function Home() {
     ),
     timer: () => (
       <HabitList
+        animatedHabitId={animatedHabitId}
         handleDeleteHabit={handleDeleteHabit}
         handleEditHabit={updateHabit}
         habits={habits.filter(h => h.type === 'timer')}

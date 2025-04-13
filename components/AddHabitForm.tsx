@@ -22,12 +22,33 @@ export function AddHabitForm({
   const [name, setName] = useState<string>('');
   const [type, setType] = useState<'checklist' | 'timer'>('checklist');
   const [points, setPoints] = useState<string>('0');
+  const [error, setError] = useState<string>('');
   const [duration, setDuration] = useState<string>(
     initialValues?.duration ? String(initialValues.duration / 60) : '10',
   );
-  const handleSubmit = () => {
-    if (!name.trim()) return;
 
+  const handlePointsChange = (text: string) => {
+    // Allow numbers only
+    if (/^\d*$/.test(text)) {
+      setPoints(text);
+      setError('');
+    } else {
+      setError('Solo se permiten números');
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!name.trim()) {
+      setError('Falta el nombre');
+      return;
+    }
+    if (error != '') {
+      return;
+    }
+    if (points === '') {
+      setError('Faltan puntos');
+      return;
+    }
     const baseHabit = {
       name,
       type,
@@ -41,6 +62,19 @@ export function AddHabitForm({
       onAdd(baseHabit);
     }
   };
+
+  useEffect(() => {
+    // If there was an error by name and it's corrected
+    if (error === 'Falta el nombre' && name.trim() !== '') {
+      setError('');
+    }
+
+    // If there was an error by empty points, and now there's points
+    if (error === 'Faltan puntos' && points !== '') {
+      setError('');
+    }
+  }, [error, name]);
+  console.log(typeof points);
 
   useEffect(() => {
     if (isEdit && existingHabit) {
@@ -82,11 +116,11 @@ export function AddHabitForm({
             <TextInput
               style={styles.input}
               value={points}
-              onChangeText={setPoints}
+              onChangeText={handlePointsChange}
               placeholder="Puntos del habito"
             />
-
-            {/* Tipo de Hábito */}
+            {error !== '' && <Text style={styles.error}>{error}</Text>}
+            {/* Habit type */}
             <Text style={styles.label}>Tipo</Text>
             <View style={styles.radioGroup}>
               <TouchableOpacity
@@ -119,7 +153,7 @@ export function AddHabitForm({
               </TouchableOpacity>
             </View>
 
-            {/* Duración (Solo si es tipo timer) */}
+            {/* Duration, if it's timer */}
             {type === 'timer' && (
               <>
                 <Text style={styles.label}>Duración (minutos)</Text>
@@ -139,7 +173,7 @@ export function AddHabitForm({
             )}
           </View>
 
-          {/* Botón Guardar */}
+          {/* Save */}
           <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
             <Text style={styles.saveButtonText}>
               {isEdit ? 'Actualizar' : 'Guardar'}
@@ -231,6 +265,11 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 6,
     alignItems: 'center',
+  },
+  error: {
+    color: 'red',
+    marginTop: 4,
+    fontSize: 12,
   },
   saveButtonText: {
     color: '#fff',
