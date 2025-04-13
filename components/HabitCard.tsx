@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import React, {useState, useRef, useEffect} from 'react';
+import {View, Text, TouchableOpacity, StyleSheet, Animated} from 'react-native';
 import {CheckCircle, Clock, Award} from 'lucide-react-native';
 import {Timer} from './Timer';
 import {HabitCardProps} from '../types/habit-cart';
@@ -11,27 +11,56 @@ export function HabitCard({
   onToggleComplete,
   onEditHabit,
   onDeleteHabit,
+  animatedHabitId,
 }: HabitCardProps) {
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Opacity animation
+  const translateYAnim = useRef(new Animated.Value(10)).current;
   const [timerActive, setTimerActive] = useState<boolean>(false);
   const [timeRemaining, setTimeRemaining] = useState<number>(
     habit.duration || 0,
   );
+
+  // Handle animation when a habit is to be completed
+  useEffect(() => {
+    if (animatedHabitId === habit.id) {
+      Animated.parallel([
+        Animated.sequence([
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+          Animated.delay(500),
+          Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.sequence([
+          Animated.timing(translateYAnim, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+          Animated.delay(500),
+          Animated.timing(translateYAnim, {
+            toValue: -10,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+        ]),
+      ]).start();
+    }
+  }, [habit.completed, animatedHabitId]);
 
   const handleTimerComplete = () => {
     setTimerActive(false);
     onToggleComplete();
   };
 
-  const handleTimerStart = () => {
-    setTimerActive(true);
-  };
-
-  const handleTimerStop = () => {
-    setTimerActive(false);
-  };
-
   const resetTimer = () => {
-    setTimeRemaining(habit.duration ?? 0); // Usa 0 si duration es undefined
+    setTimeRemaining(habit.duration ?? 0); // Use 0 if duration it's undefined
     setTimerActive(false);
   };
 
@@ -40,9 +69,14 @@ export function HabitCard({
       <View style={styles.content}>
         {habit.type === 'checklist' ? (
           <View style={styles.upper}>
-            <View>
+            <Animated.View
+              style={{
+                position: 'absolute',
+                opacity: fadeAnim,
+                transform: [{translateY: translateYAnim}],
+              }}>
               <Text style={styles.animations}>+ {habit.points}</Text>
-            </View>
+            </Animated.View>
             <TouchableOpacity onPress={onToggleComplete}>
               {habit.completed ? (
                 <CheckSquare size={24} color="#023047" />
@@ -119,13 +153,13 @@ export function HabitCard({
                     {!timerActive ? (
                       <TouchableOpacity
                         style={styles.button}
-                        onPress={handleTimerStart}>
+                        onPress={() => setTimerActive(true)}>
                         <Text style={styles.buttonText}>Iniciar</Text>
                       </TouchableOpacity>
                     ) : (
                       <TouchableOpacity
                         style={[styles.button, styles.outlineButton]}
-                        onPress={handleTimerStop}>
+                        onPress={() => setTimerActive(false)}>
                         <Text style={styles.outlineButtonText}>Pausar</Text>
                       </TouchableOpacity>
                     )}
@@ -177,10 +211,10 @@ const styles = StyleSheet.create({
   },
   animations: {
     position: 'absolute',
-    zIndex: 1,
-    fontSize: 20,
-    left: 250,
-    color: 'green',
+    fontSize: 24,
+    left: 120,
+    color: '#00aa00',
+    fontWeight: 'bold',
   },
   textContainer: {
     display: 'flex',
