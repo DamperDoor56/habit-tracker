@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {View, Text, Alert, TouchableOpacity, StyleSheet} from 'react-native';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import {Plus} from 'lucide-react-native';
@@ -113,6 +113,7 @@ export default function Home() {
     setIsEdit(true);
     setHabitBeingEdited(habit);
   };
+
   const handleDeleteHabit = (id: number) => {
     Alert.alert('¿Eliminar hábito?', 'Esta acción no se puede deshacer.', [
       {text: 'Cancelar', style: 'cancel'},
@@ -137,16 +138,31 @@ export default function Home() {
     }
     return acc;
   }, 0);
+  // Check previus total points
+  const prevTotalPointsRef = useRef(totalPoints);
+
   useEffect(() => {
     const checkGoal = async () => {
-      const popupShown = await AsyncStorage.getItem('goalPopupShown');
       const goal = parseInt(goalPoints, 10);
-      console.log('🎯 Checking goal:', goal, 'Total:', totalPoints);
+      const prevTotalPoints = prevTotalPointsRef.current;
 
-      if (!isNaN(goal) && totalPoints >= goal && popupShown !== 'true') {
-        setHasReachedGoal(true);
-        await AsyncStorage.setItem('goalPopupShown', 'true');
+      // Show Pop up if the goal is completed, but if it hasn't happened before
+      if (!isNaN(goal) && prevTotalPoints < goal && totalPoints >= goal) {
+        const popupAlreadyShown = await AsyncStorage.getItem('goalPopupShown');
+
+        if (popupAlreadyShown !== 'true') {
+          setHasReachedGoal(true);
+          await AsyncStorage.setItem('goalPopupShown', 'true');
+        }
       }
+
+      // If it's below the goal, reset AsyncStorage
+      if (!isNaN(goal) && totalPoints < goal && prevTotalPoints >= goal) {
+        await AsyncStorage.removeItem('goalPopupShown');
+        setHasReachedGoal(false);
+      }
+
+      prevTotalPointsRef.current = totalPoints;
     };
 
     checkGoal();
