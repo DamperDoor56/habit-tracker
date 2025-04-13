@@ -19,6 +19,7 @@ export default function Home() {
   const [goalPoints, setIsGoalPoints] = useState<string>('0');
   const [hasReachedGoal, setHasReachedGoal] = useState<boolean>(false);
   const [goalLoaded, setGoalLoaded] = useState<boolean>(false);
+  const [animatedHabitId, setAnimatedHabitId] = useState<number | null>(null);
 
   // This useEffect retrieves data from async storage when the app is open
   useEffect(() => {
@@ -86,10 +87,17 @@ export default function Home() {
 
   // Complete habit
   const toggleComplete = (id: number) => {
-    setHabits(
-      habits.map(habit =>
-        habit.id === id ? {...habit, completed: !habit.completed} : habit,
-      ),
+    setHabits(prevHabits =>
+      prevHabits.map(habit => {
+        if (habit.id === id) {
+          // Animate only if we mark it as completed now
+          if (!habit.completed) {
+            setAnimatedHabitId(id);
+          }
+          return {...habit, completed: !habit.completed};
+        }
+        return habit;
+      }),
     );
   };
 
@@ -147,6 +155,7 @@ export default function Home() {
   const renderScene = SceneMap({
     all: () => (
       <HabitList
+        animatedHabitId={animatedHabitId}
         handleDeleteHabit={handleDeleteHabit}
         habits={habits}
         handleEditHabit={updateHabit}
@@ -155,6 +164,7 @@ export default function Home() {
     ),
     checklist: () => (
       <HabitList
+        animatedHabitId={animatedHabitId}
         handleDeleteHabit={handleDeleteHabit}
         handleEditHabit={updateHabit}
         habits={habits.filter(h => h.type === 'checklist')}
@@ -163,6 +173,7 @@ export default function Home() {
     ),
     timer: () => (
       <HabitList
+        animatedHabitId={animatedHabitId}
         handleDeleteHabit={handleDeleteHabit}
         handleEditHabit={updateHabit}
         habits={habits.filter(h => h.type === 'timer')}
