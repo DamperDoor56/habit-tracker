@@ -22,7 +22,7 @@ export function HabitCard({
 
   // Handle animation when a habit is to be completed
   useEffect(() => {
-    if (animatedHabitId === habit.id) {
+    if (animatedHabitId === habit.id && habit.completed) {
       Animated.parallel([
         Animated.sequence([
           Animated.timing(fadeAnim, {
