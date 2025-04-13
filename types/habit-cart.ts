@@ -6,5 +6,6 @@ export interface HabitCardProps {
     onToggleComplete: () => void;
     onEditHabit: () => void;
     onDeleteHabit: () => void;
+    animatedHabitId: number | null;
   };
   
