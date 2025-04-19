@@ -1,6 +1,6 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import BackgroundTimer from 'react-native-background-timer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {TimerProps} from '../types/timer';
 
 export function Timer({
@@ -9,29 +9,73 @@ export function Timer({
   onComplete,
   timeRemaining,
   setTimeRemaining,
+  habitId,
 }: TimerProps) {
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const endTimeRef = useRef<number | null>(null);
+  const habitTime = `timerEnd_${habitId}`;
+
+  // Restore timer on init
   useEffect(() => {
-    let intervalId: number;
+    const restoreTimer = async () => {
+      // Retrieve the end times using the habitTime based on habit id
+      const storedEnd = await AsyncStorage.getItem(habitTime);
+      if (storedEnd) {
+        const end = parseInt(storedEnd, 10);
+        const now = Date.now();
+        const secondsLeft = Math.max(0, Math.floor((end - now) / 1000)); // Calculate how many seconds are left until the timer ends
 
-    if (active && timeRemaining > 0) {
-      intervalId = BackgroundTimer.setInterval(() => {
-        setTimeRemaining(prev => {
-          if (prev <= 1) {
-            BackgroundTimer.clearInterval(intervalId);
-            onComplete();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-
-    return () => {
-      if (intervalId) {
-        BackgroundTimer.clearInterval(intervalId);
+        if (secondsLeft > 0) {
+          // If there's still time left, update the endTimeRef
+          endTimeRef.current = end;
+          setTimeRemaining(secondsLeft);
+        } else {
+          await AsyncStorage.removeItem(habitTime);
+          setTimeRemaining(0);
+        }
       }
     };
-  }, [active, timeRemaining]);
+    // Call the function when the component mounts or when the habitId changes
+    restoreTimer();
+  }, [habitId]);
+
+  // Init timer if active
+  useEffect(() => {
+    const startTimer = async () => {
+      // If the timer is active and there's time left
+      if (active && timeRemaining > 0) {
+        // Calculate the end timestamp by adding remaining time to current time
+        const end = Date.now() + timeRemaining * 1000;
+        endTimeRef.current = end; // Save the end time in a ref so we can reuse it
+        await AsyncStorage.setItem(habitTime, end.toString()); // Store last time registered in async storage
+
+        // Counts the time that remains when the phone is on doze mode
+        intervalRef.current = setInterval(() => {
+          const now = Date.now();
+          // Calculate how many seconds are left until the end
+          const secondsLeft = Math.max(0, Math.floor((end - now) / 1000));
+          setTimeRemaining(secondsLeft);
+          if (secondsLeft <= 0) {
+            // Clear the interval to stop counting
+            if (intervalRef.current !== null) {
+              clearInterval(intervalRef.current);
+            }
+            AsyncStorage.removeItem(habitTime);
+            onComplete();
+          }
+        }, 1000);
+      }
+    };
+
+    startTimer();
+
+    // Stops the interval if the component unmounts
+    return () => {
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [active, timeRemaining, habitId]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -50,16 +94,14 @@ export function Timer({
 
 const styles = StyleSheet.create({
   container: {
-    gap: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   timerText: {
     textAlign: 'center',
     fontFamily: 'monospace',
     fontSize: 24,
     fontWeight: 'bold',
-  },
-  progressBar: {
-    height: 6,
   },
   progressBarWrapper: {
     backgroundColor: '#669bbc',
