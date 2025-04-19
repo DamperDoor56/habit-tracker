@@ -142,6 +142,7 @@ export function HabitCard({
               {!habit.completed && (
                 <View style={styles.timerContainer}>
                   <Timer
+                    habitId={habit.id}
                     duration={habit.duration ?? 0}
                     active={timerActive}
                     onComplete={handleTimerComplete}
