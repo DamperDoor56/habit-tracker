@@ -53,7 +53,7 @@ export function Timer({
         intervalRef.current = setInterval(() => {
           const now = Date.now();
           // Calculate how many seconds are left until the end
-          const secondsLeft = Math.max(0, Math.floor((end - now) / 1000));
+          const secondsLeft = Math.max(Math.round((end - now) / 1000));
           setTimeRemaining(secondsLeft);
           if (secondsLeft <= 0) {
             // Clear the interval to stop counting
