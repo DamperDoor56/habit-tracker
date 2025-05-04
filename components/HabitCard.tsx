@@ -1,10 +1,18 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Animated} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+  Button,
+} from 'react-native';
 import {CheckCircle, Clock, Award} from 'lucide-react-native';
 import {Timer} from './Timer';
 import {HabitCardProps} from '../types/habit-cart';
 import {CheckSquare, Square} from 'lucide-react-native';
 import {HabitOptions} from './HabitOptions';
+import {NativeModules} from 'react-native';
 
 export function HabitCard({
   habit,
@@ -16,9 +24,14 @@ export function HabitCard({
   const fadeAnim = useRef(new Animated.Value(0)).current; // Opacity animation
   const translateYAnim = useRef(new Animated.Value(10)).current;
   const [timerActive, setTimerActive] = useState<boolean>(false);
+  const {SoundPlayer} = NativeModules;
   const [timeRemaining, setTimeRemaining] = useState<number>(
     habit.duration || 0,
   );
+
+  const playEndSound = () => {
+    SoundPlayer.playSound();
+  };
 
   // Handle animation when a habit is to be completed
   useEffect(() => {
@@ -57,6 +70,7 @@ export function HabitCard({
   const handleTimerComplete = () => {
     setTimerActive(false);
     onToggleComplete();
+    SoundPlayer.playSound();
   };
 
   const resetTimer = () => {
@@ -67,6 +81,7 @@ export function HabitCard({
   return (
     <View style={[styles.card, habit.completed && styles.completedCard]}>
       <View style={styles.content}>
+        <Button title="Play sound" onPress={playEndSound}></Button>
         {habit.type === 'checklist' ? (
           <View style={styles.upper}>
             <Animated.View
