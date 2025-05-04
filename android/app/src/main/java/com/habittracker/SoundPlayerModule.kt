@@ -8,6 +8,10 @@ import com.facebook.react.bridge.ReactMethod
 class SoundPlayerModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
 
+    override fun getName(): String {
+    return "SoundPlayer"
+    }
+
   @ReactMethod
   fun playSound() {
     try {
