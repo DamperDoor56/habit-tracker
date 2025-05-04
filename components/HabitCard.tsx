@@ -81,7 +81,6 @@ export function HabitCard({
   return (
     <View style={[styles.card, habit.completed && styles.completedCard]}>
       <View style={styles.content}>
-        <Button title="Play sound" onPress={playEndSound}></Button>
         {habit.type === 'checklist' ? (
           <View style={styles.upper}>
             <Animated.View
